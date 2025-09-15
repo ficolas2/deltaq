@@ -19,6 +19,11 @@ async fn main() -> Result<()> {
                 rl.add_history_entry(line.as_str())?;
                 run_command(&ctx, &line).await;
             }
+            Ok(line) => {
+                rl.add_history_entry(line.as_str())?;
+                let df = ctx.sql(&line).await.unwrap();
+                println!("{}", df.to_string().await.unwrap());
+            }
             Err(ReadlineError::Interrupted) => {
                 println!("^C");
             }
