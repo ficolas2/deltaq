@@ -1,0 +1,11 @@
+[package]
+name = "deltaq"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = "4.5.47"
+deltalake = { version = "0.28.1", features = ["datafusion"] }
+rustyline = "17.0.1"
+shell-words = "1.1.0"
+tokio = "1.47.1"
