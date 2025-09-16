@@ -1,3 +1,4 @@
+use deltalake::datafusion::error::DataFusionError;
 use deltalake::datafusion::prelude::SessionContext;
 use open_table::open_table_command;
 use rustyline::error::ReadlineError;
@@ -9,10 +10,13 @@ pub mod open_table;
 async fn main() -> Result<()> {
     deltalake::aws::register_handlers(None);
     let ctx = SessionContext::new();
-    
+
+    let mut sb = "".to_string();
+
     let mut rl = DefaultEditor::new()?;
     loop {
-        let readline = rl.readline("deltaq> ");
+        let prompt = if sb.is_empty() { "deltaq> " } else { "   ...> " };
+        let readline = rl.readline(prompt);
         match readline {
             Ok(line) if matches!(line.trim(), "quit" | "exit" | "\\q") => break,
             Ok(line) if line.starts_with(".") => {
@@ -20,9 +24,25 @@ async fn main() -> Result<()> {
                 run_command(&ctx, &line).await;
             }
             Ok(line) => {
-                rl.add_history_entry(line.as_str())?;
-                let df = ctx.sql(&line).await.unwrap();
-                println!("{}", df.to_string().await.unwrap());
+                if sb.is_empty() {
+                    sb = line
+                } else {
+                    sb = format!("{}\n{}", sb, &line);
+                }
+                if sb.trim_end().ends_with(";") {
+                    let query = sb;
+                    sb = String::new();
+
+                    rl.add_history_entry(&query)?;
+                    let res = ctx.sql(&query).await;
+                    match res {
+                        Ok(df) => println!("{}", df.to_string().await.unwrap()),
+                        Err(e) => match e {
+                            DataFusionError::SQL(e, _) => println!("{}", e),
+                            _ => println!("{}", e),
+                        },
+                    }
+                }
             }
             Err(ReadlineError::Interrupted) => {
                 println!("^C");
@@ -49,5 +69,4 @@ async fn run_command(ctx: &SessionContext, line: &str) {
         }
         _ => {}
     }
-
 }
