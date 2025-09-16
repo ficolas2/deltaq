@@ -5,6 +5,10 @@ use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
 pub mod open_table;
+pub mod schema {
+    pub mod parser;
+    pub mod tokenizer;
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
