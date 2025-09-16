@@ -41,7 +41,7 @@ pub async fn open_table_command(ctx: &SessionContext, line: &str) {
     let args = match OpenArgs::try_parse_from(shell_words::split(line).expect("parse failed")) {
         Ok(args) => args,
         Err(e) => {
-            println!("{}", e);
+            e.print().expect("error writing to stderr");
             return;
         }
     };

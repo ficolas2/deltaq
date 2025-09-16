@@ -1,10 +1,12 @@
+use commands::open_table::open_table_command;
 use deltalake::datafusion::error::DataFusionError;
 use deltalake::datafusion::prelude::SessionContext;
-use open_table::open_table_command;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
+pub mod commands {
+    pub mod open_table;
+}
 
-pub mod open_table;
 pub mod schema {
     pub mod parser;
     pub mod tokenizer;
