@@ -1,9 +1,12 @@
+use commands::create_table::create_table_command;
 use commands::open_table::open_table_command;
 use deltalake::datafusion::error::DataFusionError;
 use deltalake::datafusion::prelude::SessionContext;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
+
 pub mod commands {
+    pub mod create_table;
     pub mod open_table;
 }
 
@@ -21,7 +24,11 @@ async fn main() -> Result<()> {
 
     let mut rl = DefaultEditor::new()?;
     loop {
-        let prompt = if sb.is_empty() { "deltaq> " } else { "   ...> " };
+        let prompt = if sb.is_empty() {
+            "deltaq> "
+        } else {
+            "   ...> "
+        };
         let readline = rl.readline(prompt);
         match readline {
             Ok(line) if matches!(line.trim(), "quit" | "exit" | "\\q") => break,
@@ -72,6 +79,20 @@ async fn run_command(ctx: &SessionContext, line: &str) {
     match args[0].as_str() {
         ".open" => {
             open_table_command(ctx, line).await;
+        }
+        ".create" => {
+            create_table_command(ctx, line).await;
+        }
+        ".tables" => {
+            for table_name in &ctx
+                .catalog("datafusion")
+                .unwrap()
+                .schema("public")
+                .unwrap()
+                .table_names()
+            {
+                println!("{}", table_name);
+            }
         }
         _ => {}
     }
