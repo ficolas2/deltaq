@@ -2,6 +2,7 @@ use commands::create_table::create_table_command;
 use commands::open_table::open_table_command;
 use deltalake::datafusion::error::DataFusionError;
 use deltalake::datafusion::prelude::SessionContext;
+use indoc::indoc;
 use rustyline::error::ReadlineError;
 use rustyline::{DefaultEditor, Result};
 
@@ -77,6 +78,20 @@ async fn run_command(ctx: &SessionContext, line: &str) {
     let args = shell_words::split(line).expect("parse failed");
 
     match args[0].as_str() {
+        ".help" => {
+            print!(indoc!(r#"
+                Commands: (type any command for more help about the specific command)
+                .open <TABLE_NAME> <TABLE_PATH>
+                    Open a table at a path, and give it a name.
+                    For more info, like specifying S3 see the .open help
+                .create --schema <schema> <TABLE_NAME> <TABLE_PATH> 
+                    Create a table from a given schema
+                .tables
+                    Display all opened tables
+                .schema <TABLE_NAME>
+                    Display the schema for a given table
+            "#))
+        }
         ".open" => {
             open_table_command(ctx, line).await;
         }
