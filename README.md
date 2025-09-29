@@ -29,6 +29,32 @@ deltaq> .open table s3://test/table \
   --allow-http true
 ```
 
+## Create
+Create a table with a given schema
+```bash
+.create --schema 'SCHEMA' <TABLE_NAME> <TABLE_PATH>
+```
+A schema is a comma-separated list of fields:
+`name: type[?], other: type2[?], ...`
+
+- `?` marks the field or element as nullable.
+- Supported primitive types: `string`, `long`, `int`, `short`, `byte`, `float`, `double`, `boolean`, `binary`, `date`, `timestamp`.
+- Arrays: `array<element_type[?]>`
+- Structs: `struct<field1: type1[?], field2: type2[?], ...>`
+- Maps: `map<key_type, value_type[?]>`
+
+## Show open tables
+Displays the list of opened tables
+```bash
+.tables
+```
+
+## Show schema
+Prints the schema for an opened table
+```bash
+.schema <TABLE_NAME>
+```
+
 # TODO
 - Arguments to start the REPL with tables already loaded
 - Write data
