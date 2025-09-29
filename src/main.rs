@@ -1,4 +1,5 @@
 use commands::create_table::create_table_command;
+use commands::display_schema::display_schema_command;
 use commands::open_table::open_table_command;
 use deltalake::datafusion::error::DataFusionError;
 use deltalake::datafusion::prelude::SessionContext;
@@ -9,11 +10,16 @@ use rustyline::{DefaultEditor, Result};
 pub mod commands {
     pub mod create_table;
     pub mod open_table;
+    pub mod display_schema;
 }
 
 pub mod schema {
     pub mod parser;
     pub mod tokenizer;
+}
+
+pub mod utils {
+    pub mod data_type;
 }
 
 #[tokio::main]
@@ -108,6 +114,9 @@ async fn run_command(ctx: &SessionContext, line: &str) {
             {
                 println!("{}", table_name);
             }
+        }
+        ".schema" => {
+            display_schema_command(ctx, line).await;
         }
         _ => {}
     }
