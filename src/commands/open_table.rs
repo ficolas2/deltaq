@@ -74,4 +74,5 @@ pub async fn open_table_command(ctx: &mut ProgramContext, line: &str) {
 
     ctx.tables.insert(args.table_name.clone(), table.clone());
     ctx.df_ctx.register_table(args.table_name, table).unwrap();
+    // TODO remove uwnrap
 }

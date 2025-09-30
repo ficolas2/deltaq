@@ -1,8 +1,8 @@
 use commands::create_table::create_table_command;
 use commands::display_schema::display_schema_command;
+use commands::insert::insert_command;
 use commands::open_table::open_table_command;
 use deltalake::datafusion::error::DataFusionError;
-use deltalake::datafusion::prelude::SessionContext;
 use indoc::indoc;
 use program_context::ProgramContext;
 use rustyline::error::ReadlineError;
@@ -11,6 +11,7 @@ use rustyline::{DefaultEditor, Result};
 pub mod commands {
     pub mod create_table;
     pub mod display_schema;
+    pub mod insert;
     pub mod open_table;
 }
 
@@ -122,6 +123,9 @@ async fn run_command(ctx: &mut ProgramContext, line: &str) {
         }
         ".schema" => {
             display_schema_command(&ctx.df_ctx, line).await;
+        }
+        ".insert" => {
+            insert_command(ctx, line).await;
         }
         _ => {}
     }
