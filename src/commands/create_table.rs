@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use clap::{Parser, arg, command};
-use deltalake::{DeltaOps, datafusion::prelude::SessionContext};
+use deltalake::DeltaOps;
 
-use crate::schema;
+use crate::{program_context::ProgramContext, schema};
 
 #[derive(Parser, Debug)]
 #[command(name = "open", about = "Open a Delta table")]
@@ -19,7 +19,7 @@ struct CreateArgs {
     schema: String,
 }
 
-pub async fn create_table_command(ctx: &SessionContext, line: &str) {
+pub async fn create_table_command(ctx: &mut ProgramContext, line: &str) {
     let args = match CreateArgs::try_parse_from(shell_words::split(line).expect("parse failed")) {
         Ok(args) => args,
         Err(e) => {
@@ -45,6 +45,8 @@ pub async fn create_table_command(ctx: &SessionContext, line: &str) {
         .await
         .unwrap();
 
-    ctx.register_table(args.table_name, Arc::new(table)).unwrap();
+    let table = Arc::new(table);
+    ctx.df_ctx.register_table(&args.table_name, table.clone()).unwrap();
+    ctx.tables.insert(args.table_name, table);
     // TODO remove all unwraps
 }

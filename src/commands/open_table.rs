@@ -1,7 +1,9 @@
 use std::{collections::HashMap, sync::Arc};
 
 use clap::{Parser, arg, command};
-use deltalake::{datafusion::prelude::SessionContext, open_table_with_storage_options};
+use deltalake::open_table_with_storage_options;
+
+use crate::program_context::ProgramContext;
 
 #[derive(Parser, Debug)]
 #[command(name = "open", about = "Open a Delta table")]
@@ -37,7 +39,7 @@ struct OpenArgs {
     conditional_put: String,
 }
 
-pub async fn open_table_command(ctx: &SessionContext, line: &str) {
+pub async fn open_table_command(ctx: &mut ProgramContext, line: &str) {
     let args = match OpenArgs::try_parse_from(shell_words::split(line).expect("parse failed")) {
         Ok(args) => args,
         Err(e) => {
@@ -69,5 +71,7 @@ pub async fn open_table_command(ctx: &SessionContext, line: &str) {
             return;
         }
     };
-    ctx.register_table(args.table_name, table).unwrap();
+
+    ctx.tables.insert(args.table_name.clone(), table.clone());
+    ctx.df_ctx.register_table(args.table_name, table).unwrap();
 }
